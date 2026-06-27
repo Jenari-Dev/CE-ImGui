@@ -2,6 +2,7 @@
 /build/
 /dist/
 /deploy/
+/overlay/dist/
 *.obj
 *.pdb
 *.exp
@@ -9,6 +10,7 @@
 
 # Cloned / generated dependencies (recreate with setup.ps1)
 /lib/imgui/
+/lib/minhook/
 /third_party/lua/lua53-64.lib
 /third_party/lua/lua53-64.exports.txt
 

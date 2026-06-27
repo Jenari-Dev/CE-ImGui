@@ -22,6 +22,7 @@ struct PluginState {
     bool              luaRegistered = false;     // ImGui table registered?
     bool              rendererReady = false;     // D3D11 + ImGui initialised?
     bool              wantRenderer  = false;     // a form asked for a window
+    bool              overlayMode   = false;     // transparent topmost click-through window
     float             dpiScale     = 1.0f;       // detected UI scale (4K aware)
 };
 
@@ -38,5 +39,6 @@ void RendererSetScale(float scale);
 void RegisterImGui(lua_State* L);     // builds the global `ImGui` table + forms
 void RenderForms();                   // iterate forms, run their OnRender (called inside a frame)
 void ClearForms();
+int  VisibleFormCount();              // how many forms are currently visible
 
 } // namespace CEImGui

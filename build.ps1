@@ -27,7 +27,7 @@ $srcs = @(
 $defs = "/DWIN32 /D_WINDOWS /DNDEBUG /DUNICODE /D_UNICODE " +
         "/DWINVER=0x0A00 /D_WIN32_WINNT=0x0A00 /DNTDDI_VERSION=0x0A000002"
 $incs = "/Isrc /Ilib\imgui /Ilib\imgui\backends /Ithird_party\lua"
-$libs = "third_party\lua\lua53-64.lib d3d11.lib dxgi.lib dwmapi.lib user32.lib gdi32.lib"
+$libs = "third_party\lua\lua53-64.lib d3d11.lib dxgi.lib dcomp.lib dwmapi.lib user32.lib gdi32.lib"
 
 $cl = "cl /nologo /std:c++17 /O2 /MT /EHsc /GS- /W3 $defs $incs " +
       "/Fobuild\ /Fdbuild\ $srcs " +

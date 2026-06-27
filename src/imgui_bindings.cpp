@@ -332,6 +332,13 @@ static int l_GetFrameRate(lua_State* L){ lua_pushnumber(L, ImGui::GetIO().Framer
 static int l_ShowDemoWindow(lua_State* L){ ImGui::ShowDemoWindow(); return 0; }
 static int l_ShowMetricsWindow(lua_State* L){ ImGui::ShowMetricsWindow(); return 0; }
 static int l_SetScale(lua_State* L){ RendererSetScale((float)luaL_checknumber(L,1)); return 0; }
+// Must be called BEFORE the first CreateForm. true = transparent topmost
+// click-through overlay (for borderless-fullscreen games); false = normal window.
+static int l_SetOverlayMode(lua_State* L){
+    if (State().rendererReady) { lua_pushboolean(L,false); return 1; } // too late
+    State().overlayMode = (lua_toboolean(L,1)!=0);
+    lua_pushboolean(L,true); return 1;
+}
 static int l_GetScale(lua_State* L){ lua_pushnumber(L, State().dpiScale); return 1; }
 static int l_GetVersion(lua_State* L){ lua_pushstring(L, IMGUI_VERSION); return 1; }
 
@@ -443,6 +450,8 @@ static int l_CreateForm(lua_State* L){
 // RenderForms — called by the renderer each frame, inside NewFrame..Render
 // ============================================================================
 static std::unordered_map<int,bool> g_keyPrev;
+static int g_visibleForms = 0;
+int VisibleFormCount() { return g_visibleForms; }
 
 void RenderForms() {
     lua_State* L = State().L;
@@ -450,6 +459,7 @@ void RenderForms() {
     getFormsTable(L);
     int t = lua_gettop(L);
     int n = (int)lua_rawlen(L, t);
+    int visCount = 0;
 
     for (int i = 1; i <= n; i++) {
         lua_rawgeti(L, t, i);          // form
@@ -473,6 +483,7 @@ void RenderForms() {
         bool visible = lua_isnil(L,-1) ? true : (lua_toboolean(L,-1)!=0);
         lua_pop(L,1);
         if (!visible) { lua_pop(L,1); continue; }
+        visCount++;
 
         lua_getfield(L, f, "OnRender");
         bool hasRender = lua_isfunction(L,-1);
@@ -516,6 +527,7 @@ void RenderForms() {
 
         lua_pop(L,1); // form
     }
+    g_visibleForms = visCount;
     lua_pop(L,1); // forms table
 }
 
@@ -591,6 +603,7 @@ static const luaL_Reg kImGuiFuncs[] = {
     {"PlotLines",l_PlotLines},{"GetFrameRate",l_GetFrameRate},
     {"ShowDemoWindow",l_ShowDemoWindow},{"ShowMetricsWindow",l_ShowMetricsWindow},
     {"SetScale",l_SetScale},{"GetScale",l_GetScale},{"GetVersion",l_GetVersion},
+    {"SetOverlayMode",l_SetOverlayMode},
     // vector sliders/drags, color picker
     {"SliderFloat2",l_SliderFloat2},{"SliderFloat3",l_SliderFloat3},{"SliderFloat4",l_SliderFloat4},
     {"DragFloat2",l_DragFloat2},{"DragFloat3",l_DragFloat3},
