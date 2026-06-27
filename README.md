@@ -103,18 +103,6 @@ It's click-through whenever no form is visible (input goes to the game) and
 captures input while a form is visible — so press your toggle key to flip between
 playing and using the menu.
 
-## CE control panel (run Cheat Engine inside ImGui)
-
-[lua/ce_panel.lua](lua/ce_panel.lua) is a ready-made panel that drives CE's own
-Lua API: value scanning, the live address list (toggle/edit real records), a
-memory hex viewer, and a Lua console — all in ImGui. Run all of CE from the
-overlay without tabbing back to CE's native window:
-
-```lua
-local panel = dofile("path/to/lua/ce_panel.lua")
-panel.open(true)   -- true = transparent overlay; omit for a normal window
-```
-
 ## API
 
 See [docs/LUA_API.md](docs/LUA_API.md) for the full function reference and

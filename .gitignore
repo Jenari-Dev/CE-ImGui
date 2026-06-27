@@ -17,6 +17,12 @@
 # Reference material from the old (abandoned) attempt
 /legacy/
 
+# Personal (not for the public repo): the control panel is for my own use, and
+# the table-conversion prompt references private paths.
+/lua/ce_panel.lua
+/PROMPT_convert_table_to_imgui.md
+/Scripts/
+
 # Editor / OS
 .vs/
 *.user
