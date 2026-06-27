@@ -82,6 +82,39 @@ Two options:
 
 Put your trainer script in CE's `autorun\` folder to load it automatically.
 
+## Overlay mode (float over a fullscreen game)
+
+Call `ImGui.SetOverlayMode(true)` **before** creating your first form and the UI
+renders in a transparent, always-on-top, click-through window composited over the
+screen with DirectComposition — so it floats over a **borderless / windowed-
+fullscreen** game (not exclusive fullscreen). No injection, no graphics-API
+hooking, nothing for anti-cheat/anti-tamper to object to: it's just your own
+window painted on top.
+
+```lua
+local ImGui = require("CEImGui")
+ImGui.SetOverlayMode(true)
+local f = ImGui.CreateForm("Trainer")
+f.ToggleKey = 0x2D            -- INSERT
+f.OnRender = function() ... end
+```
+
+It's click-through whenever no form is visible (input goes to the game) and
+captures input while a form is visible — so press your toggle key to flip between
+playing and using the menu.
+
+## CE control panel (run Cheat Engine inside ImGui)
+
+[lua/ce_panel.lua](lua/ce_panel.lua) is a ready-made panel that drives CE's own
+Lua API: value scanning, the live address list (toggle/edit real records), a
+memory hex viewer, and a Lua console — all in ImGui. Run all of CE from the
+overlay without tabbing back to CE's native window:
+
+```lua
+local panel = dofile("path/to/lua/ce_panel.lua")
+panel.open(true)   -- true = transparent overlay; omit for a normal window
+```
+
 ## API
 
 See [docs/LUA_API.md](docs/LUA_API.md) for the full function reference and
@@ -98,10 +131,18 @@ See [docs/LUA_API.md](docs/LUA_API.md) for the full function reference and
 
 ## Status
 
-Working: window + D3D11 + ImGui on the main thread, DPI auto-scaling, a broad
-immediate-mode binding surface, forms with callbacks and hotkey toggles.
-Planned: ImGui multi-viewport (drag windows out as separate OS windows), font
-customization API, image/texture widgets, a small retained-style helper layer.
+Working & verified live in Cheat Engine:
+- Immediate-mode ImGui driven from CE Lua, on CE's main thread
+- Automatic 4K / high-DPI scaling (crisp, not tiny/blurry)
+- Broad binding surface (widgets, tables, tabs, trees, plots, menus, popups…)
+- Forms with `OnRender` callbacks and hotkey toggles
+- Transparent always-on-top overlay mode (over borderless-fullscreen games)
+- CE control panel: scanning, live address list, memory viewer, Lua console
+
+Planned: ImGui multi-viewport, font-customization API, image/texture widgets,
+async scanning. An injected DX12 overlay exists under `overlay/` for games
+without aggressive anti-tamper (it does not work on Denuvo-protected titles,
+which reject injected rendering — use overlay mode instead).
 
 ## License
 
