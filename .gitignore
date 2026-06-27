@@ -1,0 +1,22 @@
+# Build output
+/build/
+/dist/
+/deploy/
+*.obj
+*.pdb
+*.exp
+*.ilk
+
+# Cloned / generated dependencies (recreate with setup.ps1)
+/lib/imgui/
+/third_party/lua/lua53-64.lib
+/third_party/lua/lua53-64.exports.txt
+
+# Reference material from the old (abandoned) attempt
+/legacy/
+
+# Editor / OS
+.vs/
+*.user
+Thumbs.db
+desktop.ini
