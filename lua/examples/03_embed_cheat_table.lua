@@ -67,7 +67,7 @@ form.OnRender = function()
             | ImGui.TableFlags_Resizable | ImGui.TableFlags_ScrollY
     if ImGui.BeginTable("celist", 4, F) then
         ImGui.TableSetupScrollFreeze(0, 1)
-        ImGui.TableSetupColumn("On",    0, 0.5)
+        ImGui.TableSetupColumn("On")
         ImGui.TableSetupColumn("Description")
         ImGui.TableSetupColumn("Address")
         ImGui.TableSetupColumn("Value")
