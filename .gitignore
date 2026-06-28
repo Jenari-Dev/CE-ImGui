@@ -21,6 +21,7 @@
 # the table-conversion prompt references private paths.
 /lua/ce_panel.lua
 /PROMPT_convert_table_to_imgui.md
+/HANDOFF_control_panel_setup.md
 /Scripts/
 
 # Editor / OS
