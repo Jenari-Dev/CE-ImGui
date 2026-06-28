@@ -29,7 +29,7 @@ form.OnRender = function()
 end
 ```
 
-## Why this design (and how it differs from the previous attempt)
+## Why this design
 
 CE-ImGui is an **immediate-mode** binding: you write an `OnRender` callback that
 calls ImGui functions every frame, exactly how Dear ImGui is meant to be used.
@@ -99,9 +99,18 @@ f.ToggleKey = 0x2D            -- INSERT
 f.OnRender = function() ... end
 ```
 
-It's click-through whenever no form is visible (input goes to the game) and
-captures input while a form is visible — so press your toggle key to flip between
-playing and using the menu.
+It captures the mouse only while the cursor is over one of its windows; the rest
+of the screen stays click-through, so the game and CE keep receiving input. Press
+your toggle key to show/hide the menu.
+
+> **Note on DRM / anti-tamper games (Denuvo, etc.):** drawing *inside* a protected
+> game's own frame via DLL injection + graphics-API hooking is rejected by these
+> protections (the device is removed / the game crashes). So overlay mode is a
+> deliberate **workaround**: it does **not** inject into or hook the game — it
+> paints a separate transparent, topmost window *over* the game instead. This
+> requires the game to run in **borderless / windowed-fullscreen** (not exclusive
+> fullscreen). It's not a true in-game overlay, but it achieves the same result
+> without touching the game's process or its protection.
 
 ## API
 

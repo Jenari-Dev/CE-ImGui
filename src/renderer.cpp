@@ -191,9 +191,11 @@ static bool InitOverlay() {
     g_wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
     RegisterClassExW(&g_wc);
 
-    // Topmost, no taskbar entry. WS_EX_TRANSPARENT (click-through) is toggled
-    // at runtime based on whether a form is visible.
-    DWORD ex = WS_EX_TOPMOST | WS_EX_TOOLWINDOW;
+    // Topmost, no taskbar entry, and CLICK-THROUGH FROM CREATION (WS_EX_TRANSPARENT).
+    // Critical: the window must start click-through so it never captures input
+    // before the per-frame logic runs — otherwise opening the overlay locks the
+    // whole screen. Interactivity is toggled on only while the cursor is over UI.
+    DWORD ex = WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_TRANSPARENT;
     g_hwnd = CreateWindowExW(ex, kClassName, L"CE-ImGui Overlay", WS_POPUP,
                              g_ovX, g_ovY, g_ovW, g_ovH,
                              nullptr, nullptr, g_wc.hInstance, nullptr);
