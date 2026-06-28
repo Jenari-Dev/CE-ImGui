@@ -132,8 +132,11 @@ async scanning. An injected DX12 overlay exists under `overlay/` for games
 without aggressive anti-tamper (it does not work on Denuvo-protected titles,
 which reject injected rendering — use overlay mode instead).
 
-## License
+## Credits & License
 
-MIT — see [LICENSE](LICENSE). Built on Dear ImGui (MIT) and Lua (MIT). Free to
-use, modify, and share. This is exactly the kind of thing that shouldn't be
-locked behind a paywall.
+Created by **Jenari Dev**. MIT licensed — see [LICENSE](LICENSE). Built on Dear
+ImGui (MIT) and Lua (MIT).
+
+**Free for anyone to use, modify, and share** — the only ask is **credit the
+original author (Jenari Dev)**. This is exactly the kind of thing that shouldn't
+be locked behind a paywall.

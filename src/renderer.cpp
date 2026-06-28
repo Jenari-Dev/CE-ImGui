@@ -40,7 +40,8 @@ static bool                    g_overlay   = false;
 static IDCompositionDevice*    g_dcompDev  = nullptr;
 static IDCompositionTarget*    g_dcompTgt  = nullptr;
 static IDCompositionVisual*    g_dcompVis  = nullptr;
-static bool                    g_interactive = true;   // is the overlay capturing input?
+static bool                    g_interactive = false;  // is the overlay capturing input?
+static bool                    g_lastWantCapture = false; // ImGui wanted the mouse last frame
 static int                     g_ovX=0, g_ovY=0, g_ovW=0, g_ovH=0;
 
 static const wchar_t* kClassName = L"CEImGui_Host_Window";
@@ -268,7 +269,10 @@ static void SetClickThrough(bool through) {
     if (through) ex |= WS_EX_TRANSPARENT;
     else         ex &= ~WS_EX_TRANSPARENT;
     SetWindowLongPtrW(g_hwnd, GWL_EXSTYLE, ex);
-    if (!through) SetForegroundWindow(g_hwnd);
+    // Do NOT SetForegroundWindow here: stealing focus is what locked the user
+    // out of CE/the game. When the window is interactive (not click-through),
+    // clicking it activates + delivers the click naturally; clicking elsewhere
+    // passes through to whatever is underneath.
 }
 
 // ---------------------------------------------------------------------------
@@ -279,19 +283,28 @@ void RendererFrame() {
     }
     if (!g_rtv) return;
 
-    // In overlay mode, capture input only while a form is visible; otherwise
-    // be click-through so the game receives input.
+    ImGuiIO& io = ImGui::GetIO();
+
+    // Overlay: capture the mouse ONLY when the cursor is over one of our ImGui
+    // windows (and a form is visible). Everywhere else stay click-through so CE
+    // and the game keep receiving input — fixes the "whole screen locked" bug.
     if (g_overlay) {
-        bool wantInteractive = VisibleFormCount() > 0;
-        if (wantInteractive != g_interactive) {
-            SetClickThrough(!wantInteractive);
-            g_interactive = wantInteractive;
-        }
-        ImGui::GetIO().MouseDrawCursor = wantInteractive;
+        bool overUI = g_lastWantCapture && VisibleFormCount() > 0;
+        if (overUI != g_interactive) { SetClickThrough(!overUI); g_interactive = overUI; }
+        io.MouseDrawCursor = overUI;
     }
 
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
+
+    // Overlay: feed the true cursor position ourselves so hover/WantCaptureMouse
+    // work even when the game (not our window) has focus. Without this the
+    // overlay could never tell the cursor was over the UI and stayed unusable.
+    if (g_overlay) {
+        POINT p;
+        if (GetCursorPos(&p)) { ScreenToClient(g_hwnd, &p); io.AddMousePosEvent((float)p.x, (float)p.y); }
+    }
+
     ImGui::NewFrame();
     RenderForms();
     ImGui::Render();
@@ -302,7 +315,11 @@ void RendererFrame() {
     g_context->ClearRenderTargetView(g_rtv, g_overlay ? clearOverlay : clearNormal);
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-    g_swap->Present(1, 0);
+    // No vsync: Present returns immediately so we never stall CE's main thread
+    // (the CE timer paces us to ~60fps). DirectComposition still composes cleanly.
+    g_swap->Present(0, 0);
+
+    if (g_overlay) g_lastWantCapture = io.WantCaptureMouse;
 }
 
 // ---------------------------------------------------------------------------
